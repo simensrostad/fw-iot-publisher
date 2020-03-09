@@ -1,0 +1,12 @@
+manifest:
+  remotes:
+    - name: nordic
+      url-base: https://github.com/NordicPlayground
+  projects:
+    - name: fw-nrfconnect-nrf
+      path: nrf
+      remote: nordic
+      revision: 8f02b7944cea3de5a31d1c14a0fff616c18aead7
+      import: true
+  self:
+    path: iot_publisher

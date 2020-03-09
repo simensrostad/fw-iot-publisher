@@ -1,0 +1,44 @@
+#
+# Copyright (c) 2020 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-BSD-5-Clause-Nordic
+#
+
+menu "IoT Publisher Sample Settings"
+
+rsource "src/mqtt_backend/Kconfig"
+
+rsource "src/coap_backend/Kconfig"
+
+config CLOUD_BACKEND
+	string "String that selects the cloud backend to be used"
+	default "NRF_CLOUD"
+
+config CLOUD_MESSAGE
+	string "Custom message published periodically to cloud"
+	default "{\"tmp\":{\"val\":23,\"ts\":735181200}}"
+
+config CLOUD_MESSAGE_PUBLICATION_INTERVAL
+	int "How often the custom message should be published to cloud, in seconds"
+	default 10
+
+choice
+	prompt "Cloud Publication Trigger"
+	default CLOUD_PUBLICATION_BUTTON_PRESS
+
+config CLOUD_PUBLICATION_BUTTON_PRESS
+	bool "Trigger publication to cloud upon a button press"
+
+config CLOUD_PUBLICATION_SEQUENTIAL
+	bool "Sequential publication to cloud set by the CONFIG_MESSAGE_PUBLICATION_INTERVAL option"
+
+endchoice
+
+config POWER_SAVING_MODE_ENABLE
+	bool "Request PSM from cellular network"
+
+endmenu
+
+menu "Zephyr Kernel"
+source "$ZEPHYR_BASE/Kconfig.zephyr"
+endmenu
