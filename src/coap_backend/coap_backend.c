@@ -190,8 +190,7 @@ int coap_backend_send(const struct coap_backend_tx_data *const tx_data)
 
 	err = coap_packet_init(&request, coap_buf, sizeof(coap_buf),
 			       APP_COAP_VERSION, COAP_TYPE_NON_CON,
-			       sizeof(next_token), (u8_t *)&next_token,
-			       COAP_METHOD_PUT, coap_next_id());
+			       0, NULL, COAP_METHOD_PUT, coap_next_id());
 	if (err < 0) {
 		LOG_ERR("Failed to create CoAP request, %d", err);
 		return err;
