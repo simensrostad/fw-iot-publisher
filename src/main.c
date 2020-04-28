@@ -5,7 +5,7 @@
  */
 
 #include <zephyr.h>
-#include <lte_lc.h>
+#include <modem/lte_lc.h>
 #include <net/cloud.h>
 #include <net/socket.h>
 #include <dk_buttons_and_leds.h>
@@ -13,6 +13,8 @@
 static struct cloud_backend *cloud_backend;
 static struct k_delayed_work cloud_update_work;
 static struct k_delayed_work cloud_ping_work;
+
+K_SEM_DEFINE(connect_sem, 0, 1);
 
 static int packet_count = 0;
 
@@ -119,13 +121,6 @@ static void modem_configure(void)
 		printk("Connecting to LTE network. ");
 		printk("This may take several minutes.\n");
 
-		err = lte_lc_init_and_connect();
-		if (err) {
-			printk("LTE link could not be established.\n");
-		}
-
-		printk("Connected to LTE network\n");
-
 #if defined(CONFIG_POWER_SAVING_MODE_ENABLE)
 		err = lte_lc_psm_req(true);
 		if (err) {
@@ -133,7 +128,18 @@ static void modem_configure(void)
 		}
 
 		printk("PSM mode requested\n");
+#else
+		err = lte_lc_psm_req(false);
+		if (err) {
+			printk("lte_lc_psm_req, error: %d\n", err);
+		}
 #endif
+		err = lte_lc_init_and_connect();
+		if (err) {
+			printk("LTE link could not be established.\n");
+		}
+
+		printk("Connected to LTE network\n");
 	}
 #endif
 }
@@ -142,11 +148,20 @@ static void modem_configure(void)
 static void button_handler(u32_t button_states, u32_t has_changed)
 {
 	if (has_changed & button_states & DK_BTN1_MSK) {
-		k_delayed_work_submit(&cloud_update_work, K_NO_WAIT);
+		k_sem_give(&connect_sem);
 	}
 
 	if (has_changed & button_states & DK_BTN2_MSK) {
-		k_delayed_work_submit(&cloud_ping_work, K_NO_WAIT);
+
+#if defined(CONFIG_LTE_RAI_NO_RESPONSE)
+	int err = lte_lc_rai_req();
+	if (err) {
+		printk("lte_lc_rai_req, error: %d\n", err);
+	}
+
+	k_sleep(K_SECONDS(60));
+#endif
+	k_delayed_work_submit(&cloud_update_work, K_NO_WAIT);
 	}
 }
 #endif
@@ -163,12 +178,6 @@ void main(void)
 
 	printk("Binded to %s\n", CONFIG_CLOUD_BACKEND);
 
-	err = cloud_init(cloud_backend, cloud_event_handler);
-	if (err) {
-		printk("Cloud backend could not be initialized, error: %d\n",
-			err);
-	}
-
 	work_init();
 	modem_configure();
 
@@ -178,6 +187,14 @@ void main(void)
 		printk("dk_buttons_init, error: %d\n", err);
 	}
 #endif
+
+	k_sem_take(&connect_sem, K_FOREVER);
+
+	err = cloud_init(cloud_backend, cloud_event_handler);
+	if (err) {
+		printk("Cloud backend could not be initialized, error: %d\n",
+			err);
+	}
 
 	err = cloud_connect(cloud_backend);
 	if (err) {

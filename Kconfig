@@ -37,6 +37,9 @@ endchoice
 config POWER_SAVING_MODE_ENABLE
 	bool "Request PSM from cellular network"
 
+config LTE_RAI_NO_RESPONSE
+	bool "Request Release assistance indication"
+
 endmenu
 
 menu "Zephyr Kernel"

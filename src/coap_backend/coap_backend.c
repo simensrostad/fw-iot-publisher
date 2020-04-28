@@ -1,7 +1,6 @@
 #include <coap_backend.h>
 #include <net/socket.h>
 #include <net/cloud.h>
-#include <net/cloud_backend.h>
 #include <net/coap.h>
 #include <stdio.h>
 #include <net/tls_credentials.h>
