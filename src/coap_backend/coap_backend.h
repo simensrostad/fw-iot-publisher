@@ -25,11 +25,17 @@ extern "C" {
 
 /** @brief CoAP notification event types, used to signal the application. */
 enum coap_backend_evt_type {
+	/** Connected to the CoAP server. */
 	COAP_BACKEND_EVT_CONNECTED = 0x1,
+	/** CoAP server ready.  */
 	COAP_BACKEND_EVT_READY,
+	/** Disconnected from the CoAP server. */
 	COAP_BACKEND_EVT_DISCONNECTED,
+	/** Data received from the CoAP server. */
 	COAP_BACKEND_EVT_DATA_RECEIVED,
+	/** CoAP Backend library error. */
 	COAP_BACKEND_EVT_ERROR,
+	/** CoAP Backend Fota done, request to reboot. */
 	COAP_BACKEND_EVT_FOTA_DONE
 };
 
@@ -99,7 +105,7 @@ int coap_backend_connect(struct coap_backend_config *const config);
  */
 int coap_backend_disconnect(void);
 
-/** @brief Send data to UDP server.
+/** @brief Send data to the UDP server.
  *
  *  @param[in] tx_data Pointer to struct containing data to be transmitted to
  *                     the UDP server.
@@ -109,14 +115,14 @@ int coap_backend_disconnect(void);
  */
 int coap_backend_send(const struct coap_backend_tx_data *const tx_data);
 
-/** @brief Get data from UDP server
+/** @brief Get data from the UDP server.
  *
  *  @return 0 If successful.
  *            Otherwise, a (negative) error code is returned.
  */
 int coap_backend_input(void);
 
-/** @brief Ping UDP server. Must be called periodically
+/** @brief Ping the UDP server. Must be called periodically
  *         to keep socket open.
  *
  *  @return 0 If successful.

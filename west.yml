@@ -6,7 +6,7 @@ manifest:
     - name: fw-nrfconnect-nrf
       path: nrf
       remote: nordic
-      revision: 86f024b475aa3a96c7065e61275a5ff3d94a90f0
+      revision: b645926ab1aab57b1569a5473c4b52a2c28cf880
       import: true
   self:
     path: iot_publisher
